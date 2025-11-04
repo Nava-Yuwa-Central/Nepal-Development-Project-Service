@@ -7,7 +7,8 @@ from pydantic import BaseModel
 
 from nes.core.identifiers import build_version_id
 from nes.core.models import CursorPage, Entity, EntityType
-from nes.database import get_database as get_db, EntityDatabase
+from nes.database import EntityDatabase
+from nes.database import get_database as get_db
 
 router = APIRouter(tags=["Entities"])
 
@@ -34,7 +35,9 @@ async def entities(
     ),
     q: Optional[str] = Query(None, description="Search query - not implemented"),
     type: Optional[EntityType] = Query(None, description="Filter by entity type"),
-    subtype: Optional[str] = Query(None, description="Filter by entity subtype (e.g., 'politician', 'party')"),
+    subtype: Optional[str] = Query(
+        None, description="Filter by entity subtype (e.g., 'politician', 'party')"
+    ),
     limit: int = Query(20, ge=1, le=100, description="Page size"),
     offset: int = Query(0, ge=0, description="Offset (Number of items to skip)"),
     db: EntityDatabase = Depends(get_database),
@@ -63,7 +66,9 @@ async def entities(
     if q:
         raise HTTPException(status_code=501, detail="Search query not implemented")
 
-    entities = await db.list_entities(limit=limit, offset=offset, type=type, subtype=subtype)
+    entities = await db.list_entities(
+        limit=limit, offset=offset, type=type, subtype=subtype
+    )
     return EntityListResponse(
         results=entities, page=CursorPage(hasMore=len(entities) == limit, offset=offset)
     )

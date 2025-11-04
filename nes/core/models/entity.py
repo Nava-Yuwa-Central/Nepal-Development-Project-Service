@@ -4,7 +4,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field, computed_field, field_validator
+from pydantic import (BaseModel, Field, TypeAdapter, computed_field,
+                      field_validator)
 
 from nes.core.identifiers import build_entity_id
 
@@ -23,6 +24,7 @@ ENTITY_TYPES = ["person", "organization"]
 
 class GovernmentType(str, Enum):
     """Types of government entities."""
+
     FEDERAL = "federal"
     STATE = "state"
     LOCAL = "local"
@@ -30,6 +32,8 @@ class GovernmentType(str, Enum):
 
 class Entity(BaseModel):
     """Base entity model. At least one name with kind='DEFAULT' should be provided for all entities."""
+
+    model_config = {"extra": "forbid"}
 
     slug: str = Field(
         ...,
@@ -69,7 +73,8 @@ class Entity(BaseModel):
         None, description="Tags for categorizing the entity"
     )
     attributes: Optional[Dict[str, Any]] = Field(
-        None, description="Additional attributes for the entity"
+        None,
+        description="Additional attributes for the entity. Keys with 'sys:' prefix are reserved for special system fields.",
     )
     contacts: Optional[List[ContactInfo]] = Field(
         None, description="Contact information for the entity"
@@ -101,17 +106,41 @@ class Entity(BaseModel):
 
         return v
 
+    def _get_sys_attribute(self, key: str, type_hint):
+        """Get a system attribute and cast to the specified type."""
+        if not self.attributes:
+            return None
+        value = self.attributes.get(f"sys:{key}")
+        if value is None:
+            return None
+        return TypeAdapter(type_hint).validate_python(value, strict=True)
+
+    def _set_sys_attribute(self, key: str, value):
+        """Set a system attribute."""
+        if self.attributes is None:
+            self.attributes = {}
+        if value is None:
+            self.attributes.pop(f"sys:{key}", None)
+        else:
+            self.attributes[f"sys:{key}"] = value
+
+    @classmethod
+    def _sys_prop(cls, key: str, type_hint):
+        """Create a property for a system attribute with automatic getter/setter."""
+        return property(
+            lambda self: self._get_sys_attribute(key, type_hint),
+            lambda self, value: self._set_sys_attribute(key, value),
+        )
+
 
 class Person(Entity):
     type: Literal["person"] = Field(
         default="person", description="Entity type, always person"
     )
-    education: Optional[List[Education]] = Field(
-        None, description="Educational background"
-    )
-    positions: Optional[List[Position]] = Field(
-        None, description="Professional positions and roles"
-    )
+
+    education = Entity._sys_prop("education", List[Education])
+    positions = Entity._sys_prop("positions", List[Position])
+
 
 class Organization(Entity):
     type: Literal["organization"] = Field(
@@ -125,16 +154,15 @@ class PoliticalParty(Organization):
         description="Organization subtype, always political_party",
     )
 
-class Government(Organization):
+
+class GovernmentBody(Organization):
     subType: Literal["government"] = Field(
         default="government",
         description="Organization subtype, always government",
     )
 
-    governmentType: Optional[GovernmentType] = Field(
-        None,
-        description="Type of government (federal, state, local)",
-    )
+    # Type of government (federal, state, local)
+    governmentType = Entity._sys_prop("governmentType", Optional[GovernmentType])
 
 
 # Entity type/subtype to class mapping
@@ -146,6 +174,6 @@ ENTITY_TYPE_MAP = {
     "organization": {
         None: Organization,
         "political_party": PoliticalParty,
-        "government": Government,
+        "government": GovernmentBody,
     },
 }

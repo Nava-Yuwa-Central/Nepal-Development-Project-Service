@@ -6,12 +6,16 @@ from pydantic import BaseModel, Field
 
 
 class CursorPage(BaseModel):
+    model_config = {"extra": "forbid"}
+
     hasMore: bool
     offset: int = 0
 
 
 class Name(BaseModel):
     """Represents a name with language and kind classification."""
+
+    model_config = {"extra": "forbid"}
 
     value: str = Field(..., description="The actual name string")
 
@@ -26,6 +30,8 @@ class Name(BaseModel):
 
 
 class ContactInfo(BaseModel):
+    model_config = {"extra": "forbid"}
+
     type: str
     value: str
     label: Optional[str] = None

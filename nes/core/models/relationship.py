@@ -21,6 +21,8 @@ RelationshipType = Literal[
 
 
 class Relationship(BaseModel):
+    model_config = {"extra": "forbid"}
+
     sourceEntityId: str
     targetEntityId: str
     type: RelationshipType

@@ -153,9 +153,9 @@ async def test_person_with_education_persistence(temp_db, sample_actor):
         degree="Bachelor of Arts",
         field="Political Science",
         startYear=2015,
-        endYear=2019
+        endYear=2019,
     )
-    
+
     version_summary = VersionSummary(
         entityOrRelationshipId="entity:person/miraj-dhungana",
         type="ENTITY",
@@ -164,18 +164,18 @@ async def test_person_with_education_persistence(temp_db, sample_actor):
         changeDescription="Initial creation",
         createdAt=datetime.now(),
     )
-    
+
     person = Person(
         slug="miraj-dhungana",
         names=[Name(kind="DEFAULT", value="Miraj Dhungana", lang="en")],
-        education=[education],
         versionSummary=version_summary,
         createdAt=datetime.now(),
     )
-    
+    person.education = [education]
+
     await temp_db.put_entity(person)
-    retrieved_person = await temp_db.get_entity(person.id)
-    
+    retrieved_person: Person = await temp_db.get_entity(person.id)
+
     assert retrieved_person.education is not None
     assert len(retrieved_person.education) == 1
     assert retrieved_person.education[0].institution == "Tribhuvan University"
@@ -183,3 +183,8 @@ async def test_person_with_education_persistence(temp_db, sample_actor):
     assert retrieved_person.education[0].field == "Political Science"
     assert retrieved_person.education[0].startYear == 2015
     assert retrieved_person.education[0].endYear == 2019
+    assert "sys:education" in retrieved_person.attributes
+    assert (
+        retrieved_person.attributes["sys:education"][0]
+        == retrieved_person.education[0].model_dump()
+    )

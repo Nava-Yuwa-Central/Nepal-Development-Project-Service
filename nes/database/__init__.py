@@ -6,10 +6,10 @@ from .file_database import FileDatabase
 
 def get_database(root_path: str = "entity-db") -> EntityDatabase:
     """Get a database instance.
-    
+
     Args:
         root_path: Root directory for the database files
-        
+
     Returns:
         EntityDatabase instance
     """

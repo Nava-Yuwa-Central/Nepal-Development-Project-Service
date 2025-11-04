@@ -45,12 +45,12 @@ class FileDatabase(EntityDatabase):
             return None
         with open(file_path, "r") as f:
             data = json.load(f)
-        
+
         entity_type = data.get("type")
         entity_subtype = data.get("subType")
         type_map = ENTITY_TYPE_MAP.get(entity_type, {})
         entity_class = type_map.get(entity_subtype, type_map.get(None, Entity))
-        return entity_class.model_validate(data)
+        return entity_class.model_validate(data, extra="ignore")
 
     async def delete_entity(self, entity_id: str) -> bool:
         file_path = self._id_to_path(entity_id)
@@ -72,23 +72,21 @@ class FileDatabase(EntityDatabase):
         elif type:
             search_path = self.root_path / "entity" / type
         else:
-            search_path = self.root_path
+            search_path = self.root_path / "entity"
 
         entities = []
         for file_path in search_path.rglob("*.json"):
-            try:
-                with open(file_path, "r") as f:
-                    data = json.load(f)
-                if "type" in data:
-                    entity_type = data.get("type")
-                    entity_subtype = data.get("subType")
-                    type_map = ENTITY_TYPE_MAP.get(entity_type, {})
-                    entity_class = type_map.get(entity_subtype, type_map.get(None, Entity))
-                    entities.append(entity_class.model_validate(data))
-                    if len(entities) >= limit + offset:
-                        break
-            except:
-                continue
+            with open(file_path, "r") as f:
+                data = json.load(f)
+            if "type" in data:
+                entity_type = data.get("type")
+                entity_subtype = data.get("subType")
+                type_map = ENTITY_TYPE_MAP.get(entity_type, {})
+                entity_class = type_map.get(entity_subtype, type_map.get(None, Entity))
+                entity = entity_class.model_validate(data, extra="ignore")
+                entities.append(entity)
+                if len(entities) >= limit + offset:
+                    break
         return entities[offset : offset + limit]
 
     async def put_relationship(self, relationship: Relationship) -> Relationship:
@@ -111,7 +109,7 @@ class FileDatabase(EntityDatabase):
             return None
         with open(file_path, "r") as f:
             data = json.load(f)
-        return Relationship.model_validate(data)
+        return Relationship.model_validate(data, extra="ignore")
 
     async def delete_relationship(self, relationship_id: str) -> bool:
         file_path = self._id_to_path(relationship_id)
@@ -127,13 +125,10 @@ class FileDatabase(EntityDatabase):
         for file_path in self.root_path.rglob("*.json"):
             if len(relationships) >= limit + offset:
                 break
-            try:
-                with open(file_path, "r") as f:
-                    data = json.load(f)
-                if "sourceEntityId" in data:
-                    relationships.append(Relationship.model_validate(data))
-            except:
-                continue
+            with open(file_path, "r") as f:
+                data = json.load(f)
+            if "sourceEntityId" in data:
+                relationships.append(Relationship.model_validate(data, extra="ignore"))
         return relationships[offset : offset + limit]
 
     async def put_version(self, version: Version) -> Version:
@@ -156,7 +151,7 @@ class FileDatabase(EntityDatabase):
             return None
         with open(file_path, "r") as f:
             data = json.load(f)
-        return Version.model_validate(data)
+        return Version.model_validate(data, extra="ignore")
 
     async def delete_version(self, version_id: str) -> bool:
         file_path = self._id_to_path(version_id)
@@ -170,13 +165,10 @@ class FileDatabase(EntityDatabase):
         for file_path in self.root_path.rglob("*.json"):
             if len(versions) >= limit + offset:
                 break
-            try:
-                with open(file_path, "r") as f:
-                    data = json.load(f)
-                if "versionNumber" in data:
-                    versions.append(Version.model_validate(data))
-            except:
-                continue
+            with open(file_path, "r") as f:
+                data = json.load(f)
+            if "versionNumber" in data:
+                versions.append(Version.model_validate(data, extra="ignore"))
         return versions[offset : offset + limit]
 
     async def put_actor(self, actor: Actor) -> Actor:
@@ -199,7 +191,7 @@ class FileDatabase(EntityDatabase):
             return None
         with open(file_path, "r") as f:
             data = json.load(f)
-        return Actor.model_validate(data)
+        return Actor.model_validate(data, extra="ignore")
 
     async def delete_actor(self, actor_id: str) -> bool:
         file_path = self._id_to_path(actor_id)
@@ -213,11 +205,8 @@ class FileDatabase(EntityDatabase):
         for file_path in self.root_path.rglob("*.json"):
             if len(actors) >= limit + offset:
                 break
-            try:
-                with open(file_path, "r") as f:
-                    data = json.load(f)
-                if "slug" in data and "name" in data:
-                    actors.append(Actor.model_validate(data))
-            except:
-                continue
+            with open(file_path, "r") as f:
+                data = json.load(f)
+            if "slug" in data and "name" in data:
+                actors.append(Actor.model_validate(data, extra="ignore"))
         return actors[offset : offset + limit]

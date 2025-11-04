@@ -14,7 +14,7 @@ app = FastAPI(
         "name": "NewNepal.org",
         "email": "hello@newnepal.org",
         "something": "efgh",
-    }
+    },
 )
 
 app.add_middleware(

@@ -60,10 +60,13 @@ async def test_entity_lifecycle_management(temp_db):
     assert len(retrieved_entity.names) == 2
 
     # 3. Publish the Version. This is an extension of version summary and includes snapshot and changes
-    version = Version(
-        **entity.versionSummary.model_dump(),
-        snapshot=entity.model_dump(),
-        changes={},  # TODO: Implement the differ. In this case, this would be the entire object.
+    version = Version.model_validate(
+        dict(
+            **entity.versionSummary.model_dump(),
+            snapshot=entity.model_dump(),
+            changes={},  # TODO: Implement the differ. In this case, this would be the entire object.
+        ),
+        extra="ignore",
     )
 
     published_version = await temp_db.put_version(version)
@@ -88,13 +91,16 @@ async def test_entity_lifecycle_management(temp_db):
 
     updated_entity = await temp_db.put_entity(entity)
 
-    version_2 = Version(
-        **entity.versionSummary.model_dump(),
-        snapshot=entity.model_dump(),
-        changes={
-            "short_description": "Nepali journalist and politician",
-            "tags": ["journalist", "politician", "media"],
-        },  # TODO: Implement an automated diff calculator.
+    version_2 = Version.model_validate(
+        dict(
+            **entity.versionSummary.model_dump(),
+            snapshot=entity.model_dump(),
+            changes={
+                "short_description": "Nepali journalist and politician",
+                "tags": ["journalist", "politician", "media"],
+            },  # TODO: Implement an automated diff calculator.
+        ),
+        extra="ignore",
     )
     await temp_db.put_version(version_2)
 
@@ -171,10 +177,13 @@ async def test_organization_lifecycle(temp_db):
     assert len(retrieved_entity.names) == 2
 
     # 3. Publish the Version
-    version = Version(
-        **entity.versionSummary.model_dump(),
-        snapshot=entity.model_dump(),
-        changes={},
+    version = Version.model_validate(
+        dict(
+            **entity.versionSummary.model_dump(),
+            snapshot=entity.model_dump(),
+            changes={},
+        ),
+        extra="ignore",
     )
 
     published_version = await temp_db.put_version(version)

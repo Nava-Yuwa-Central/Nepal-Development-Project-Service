@@ -30,6 +30,8 @@ VersionType = Literal["ENTITY", "RELATIONSHIP"]
 
 
 class VersionSummary(BaseModel):
+    model_config = {"extra": "forbid"}
+
     entityOrRelationshipId: str = Field(
         ..., description="ID of the entity or relationship this version belongs to"
     )
