@@ -4,6 +4,8 @@
 
 > **TDD METHODOLOGY**: All implementation tasks follow Red-Green-Refactor. Write failing tests first (Red), implement minimal code to pass (Green), then refactor for quality (Refactor).
 
+> Another note: We use poetry for venv-based development.
+
 ## Phase 0: Project Setup
 
 - [x] 0. Initialize nes2 package structure
@@ -84,8 +86,8 @@
 
 ## Phase 2: Database Layer Implementation (TDD)
 
-- [ ] 2. Build FileDatabase v2 with enhanced capabilities
-  - [ ] 2.1 Write database foundation tests FIRST
+- [-] 2. Build FileDatabase v2 with enhanced capabilities
+  - [x] 2.1 Write database foundation tests FIRST
     - Write tests for EntityDatabase abstract interface
     - Write tests for FileDatabase CRUD operations
     - Write tests for entity storage and retrieval
@@ -94,7 +96,7 @@
     - Write tests for actor storage and retrieval
     - _Requirements: Database abstraction, TDD_
 
-  - [ ] 2.2 Implement database foundation (Green)
+  - [x] 2.2 Implement database foundation (Green)
     - Create `nes2/database/` directory with `__init__.py`
     - Create `nes2/database/entity_database.py` with abstract EntityDatabase class
     - Create `nes2/database/file_database.py` with FileDatabase implementation
@@ -103,7 +105,7 @@
     - Ensure all foundation tests pass
     - _Requirements: Database abstraction_
 
-  - [ ] 2.3 Write search capability tests FIRST
+  - [x] 2.3 Write search capability tests FIRST
     - Write tests for text-based entity search
     - Write tests for case-insensitive matching
     - Write tests for multilingual search (Nepali and English)
@@ -112,7 +114,7 @@
     - Write tests for search result ranking
     - _Requirements: 1.2, 3.2, TDD_
 
-  - [ ] 2.4 Implement search capabilities (Green)
+  - [x] 2.4 Implement search capabilities (Green)
     - Implement `search_entities()` method with text matching
     - Add case-insensitive search across name fields
     - Implement multilingual search support
@@ -120,14 +122,14 @@
     - Ensure all search tests pass
     - _Requirements: 1.2, 3.2_
 
-  - [ ] 2.5 Write relationship querying tests FIRST
+  - [x] 2.5 Write relationship querying tests FIRST
     - Write tests for listing relationships by entity
     - Write tests for listing relationships by type
     - Write tests for temporal filtering
     - Write tests for bidirectional queries
     - _Requirements: 4.3, TDD_
 
-  - [ ] 2.6 Implement relationship querying (Green)
+  - [x] 2.6 Implement relationship querying (Green)
     - Add `list_relationships_by_entity()` method
     - Implement `list_relationships_by_type()` method
     - Add temporal filtering for relationships
@@ -135,28 +137,28 @@
     - Ensure all relationship query tests pass
     - _Requirements: 4.3_
 
-  - [ ] 2.7 Write version listing tests FIRST
+  - [x] 2.7 Write version listing tests FIRST
     - Write tests for listing versions by entity
     - Write tests for listing versions by relationship
     - Write tests for version filtering
     - Write tests for efficient version retrieval
     - _Requirements: 2.3, TDD_
 
-  - [ ] 2.8 Implement enhanced version listing (Green)
+  - [x] 2.8 Implement enhanced version listing (Green)
     - Update `list_versions()` to require entity_id or relationship_id
     - Add filtering by entity/relationship
     - Implement efficient version retrieval
     - Ensure all version listing tests pass
     - _Requirements: 2.3_
 
-  - [ ] 2.9 Write caching tests FIRST
+  - [x] 2.9 Write caching tests FIRST
     - Write tests for cache hit/miss behavior
     - Write tests for cache TTL expiration
     - Write tests for cache invalidation on updates
     - Write tests for cache warming
     - _Requirements: TDD_
 
-  - [ ] 2.10 Implement caching layer (Green)
+  - [x] 2.10 Implement caching layer (Green)
     - Implement in-memory cache with TTL
     - Add cache warming for frequently accessed entities
     - Implement cache invalidation on updates
@@ -164,14 +166,14 @@
     - Ensure all caching tests pass
     - _Requirements: Performance_
 
-  - [ ] 2.11 Write file I/O optimization tests FIRST
+  - [x] 2.11 Write file I/O optimization tests FIRST
     - Write tests for batch read operations
     - Write tests for concurrent read support
     - Write tests for directory traversal optimization
     - Write tests for index file usage
     - _Requirements: TDD_
 
-  - [ ] 2.12 Implement file I/O optimizations (Green)
+  - [x] 2.12 Implement file I/O optimizations (Green)
     - Implement batch read operations
     - Add concurrent read support
     - Optimize directory traversal for listing
@@ -179,7 +181,7 @@
     - Ensure all I/O optimization tests pass
     - _Requirements: Performance_
 
-  - [ ] 2.13 Refactor database layer
+  - [x] 2.13 Refactor database layer
     - Refactor for code quality and maintainability
     - Optimize performance bottlenecks
     - Improve error handling
