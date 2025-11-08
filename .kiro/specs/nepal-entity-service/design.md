@@ -110,8 +110,8 @@ The system is organized into several key components:
    - **Translation Service**: Nepali/English translation
    - **Data Normalization Service**: LLM-powered data structuring
 4. **Database Layer**: Abstract database interface with file-based implementation  
-5. **API Layer**: FastAPI-based REST service for data retrieval
-6. **Client Applications**: Web apps, CLI tools, and Jupyter notebooks
+5. **API Layer**: FastAPI-based REST service for data retrieval with hosted documentation
+6. **Client Applications**: Web apps, CLI tools, and Jupyter notebooks with direct Publication Service access
 7. **Data Maintainer Interface**: Pythonic interface for local data maintenance
 
 ## Components and Interfaces
@@ -372,14 +372,94 @@ Pythonic interface for local data maintenance operations:
 ### API Service
 
 #### REST Endpoints
-Comprehensive read-only API surface including:
 
-- **Entity Retrieval**: Read operations with filtering and pagination
-- **Version Access**: Historical entity state retrieval
-- **Relationship Queries**: Entity connection exploration
-- **Search Endpoints**: Basic text and filtered search via Search Service
+All API endpoints are served under the `/api` prefix, with documentation served at the root:
 
-Note: Write operations are handled through the local Pythonic Data Maintainer Interface, not through the API.
+**API Endpoints (`/api/*`)**
+- **Entity Retrieval**: `/api/entities` - Read operations with filtering and pagination
+- **Entity Details**: `/api/entities/{entity_id}` - Get specific entity by ID
+- **Version Access**: `/api/entities/{entity_id}/versions` - Historical entity state retrieval
+- **Relationship Queries**: `/api/relationships` - Entity connection exploration
+- **Search Endpoints**: `/api/search` - Basic text and filtered search via Search Service
+- **Health Check**: `/api/health` - System health and readiness status
+
+**Documentation Endpoints**
+- **Root**: `/` - Main documentation landing page
+- **Documentation Pages**: `/{page}` - Individual documentation pages from Markdown
+- **API Schema**: `/docs` - OpenAPI/Swagger schema documentation
+
+Note: Write operations are handled through the Publication Service in notebooks and scripts, not through the API.
+
+#### Documentation Hosting
+
+The API service hosts comprehensive documentation from the root endpoint, providing a unified documentation experience:
+
+**Root Documentation Portal (`/`)**
+- **Endpoint**: `/` serves the main documentation landing page
+- **Format**: Static HTML generated from Markdown files
+- **Content**: Architecture overview, usage guides, API reference, examples
+- **Navigation**: Simple navigation between documentation sections
+- **Public Access**: No authentication required, fully public documentation
+
+**API Schema Documentation (`/docs`)**
+- **Endpoint**: `/docs` provides OpenAPI/Swagger schema documentation
+- **Auto-generated**: FastAPI automatically generates OpenAPI 3.0 specification
+- **Schema Exploration**: Complete data model documentation with request/response examples
+- **Read-Only**: Documentation for read-only public API endpoints
+
+**Documentation Structure**
+```
+docs/
+├── index.md              # Landing page (served at /)
+├── getting-started.md    # Quick start guide
+├── architecture.md       # System architecture
+├── api-reference.md      # API endpoint documentation
+├── data-models.md        # Entity, Relationship, Version schemas
+├── examples.md           # Usage examples
+└── contributing.md       # Contribution guidelines
+```
+
+**Documentation Build and Serving**
+```python
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import markdown
+
+app = FastAPI()
+
+# Serve API endpoints under /api prefix
+app.include_router(api_router, prefix="/api")
+
+# Serve OpenAPI docs at /docs
+# (FastAPI default, no configuration needed)
+
+# Serve markdown documentation at root
+@app.get("/")
+async def root():
+    """Serve the main documentation landing page."""
+    with open("docs/index.md", "r") as f:
+        content = markdown.markdown(f.read())
+    return HTMLResponse(content=render_template(content))
+
+# Serve other documentation pages
+@app.get("/{page}")
+async def documentation_page(page: str):
+    """Serve documentation pages from markdown files."""
+    try:
+        with open(f"docs/{page}.md", "r") as f:
+            content = markdown.markdown(f.read())
+        return HTMLResponse(content=render_template(content))
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Page not found")
+```
+
+**Documentation Features**
+- **Markdown-Based**: All documentation written in simple Markdown files
+- **Version Control**: Documentation versioned alongside code in Git
+- **Easy Updates**: Non-technical contributors can update documentation via Markdown
+- **No Build Step**: Markdown rendered on-the-fly by the API service
+- **Consistent Styling**: Simple HTML template for consistent look and feel
 
 #### Middleware Stack
 - **CORS Support**: Cross-origin request handling for web applications

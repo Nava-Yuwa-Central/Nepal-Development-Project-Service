@@ -8,16 +8,20 @@ The entity service hosts a public API that allows anyone to get the entity, rela
 
 ## Glossary
 
-- **Entity**: A public person, organization, location in Nepal's political/administrative system.
-- **Entity_Database**: A database storing entity/relationship/other information with versioning support. Currently we provide a file system-based adapter.
-- **Nepal_Entity_Service** and **NES**: Core service that loads the entity database and exposes retrieval endpoints. The APIs will be read-only.
-- **NES API**: FastAPI web service providing entity retrieval endpoints.
+- **Entity**: A public person, organization, location in Nepal's political/administrative system
+- **Entity_Database**: A database storing entity/relationship/other information with versioning support. Currently we provide a file system-based adapter at `nes-db/v2`
+- **Nepal_Entity_Service** and **NES**: Core service that loads the entity database and exposes retrieval endpoints. The APIs will be read-only
+- **NES API**: FastAPI web service providing entity retrieval endpoints
+- **Publication_Service**: Central orchestration layer managing entity lifecycle, relationships, and versioning through coordinated modules
+- **Search_Service**: Read-optimized service providing entity and relationship search with filtering and pagination
+- **Scraping_Service**: Standalone service for extracting and normalizing data from external sources using GenAI/LLM
+
 - **Accountability_Portal**: Public-facing web platform for transparency and accountability
 - **Entity_Type**: Classification of entities (person, organization, location, etc.)
-- **Entity_SubType**: Specific classification within entity types (political_party, government_body, etc.).
-- **Version_System**: Audit trail system tracking changes to entities and relationships over time
-- **Relationship_System**: System managing connections between entities.
-- **Scraping_Tools**: ML-powered tools for building entity databases from external source, using various providers including AWS, Google Cloud/Vertex AI, and OpenAI.
+- **Entity_SubType**: Specific classification within entity types (political_party, government_body, etc.)
+- **Version_System**: Audit trail system tracking changes to entities and relationships over time through the Version Module
+- **Relationship_System**: System managing connections between entities through the Relationship Module
+- **Scraping_Tools**: ML-powered tools for building entity databases from external sources, using various providers including AWS, Google Cloud/Vertex AI, and OpenAI
 
 ## Requirements
 
@@ -32,11 +36,12 @@ The entity service hosts a public API that allows anyone to get the entity, rela
 3. THE Nepal_Entity_Service SHALL provide pagination with configurable limits.
 4. THE Nepal_Entity_Service SHALL return entities in standardized JSON format with complete metadata
 5. THE Nepal_Entity_Service SHALL support CORS for cross-origin requests from web applications
-6. [Extensive Goal] The Nepal_Entity_Service SHALL also allow the user to retrive appropriate information they need via a GraphQL API.
-6. THE Nepal_Entity_Service SHALL use the highest code quality and ensure that rigorous tests are run (including code quality checks, CI/CD, black/flake8/isort/code coverage/unit, component and e2e tests).
-7. THE Nepal_Entity_Service SHALL provide a code and service documentation and host it alongside the API.
-8. THE Nepal_Entity_Service SHALL track API usage enabling metric emissions at different levels to track opportunities for future enhancements.
-9. THE Nepal_Entity_Service SHALL expose a health check API.
+6. THE Nepal_Entity_Service SHALL use the highest code quality and ensure that rigorous tests are run (including code quality checks, CI/CD, black/flake8/isort/code coverage/unit, component and e2e tests)
+7. THE Nepal_Entity_Service SHALL serve documentation at the root endpoint `/` using Markdown files
+8. THE Nepal_Entity_Service SHALL provide API schema documentation using OpenAPI/Swagger at `/docs` endpoint
+9. THE Nepal_Entity_Service SHALL render Markdown documentation on-the-fly without requiring a separate build step
+10. THE Nepal_Entity_Service SHALL expose a health check API
+11. [Future Enhancement] The Nepal_Entity_Service MAY provide a GraphQL API in addition to REST for flexible query capabilities
 
 ### Requirement 2
 
@@ -46,8 +51,9 @@ The entity service hosts a public API that allows anyone to get the entity, rela
 
 1. WHEN an entity is modified, THE Version_System SHALL create a new version with timestamp and change metadata (including when, who changed it, for what reason)
 2. THE Version_System SHALL preserve complete snapshots of entity states for historical reference
-3. WHEN a version is requested, THE Nepal_Entity_Service SHALL return the exact entity state at that point in time.
-4. The Version_System SHALL provide an interface that allows a data maintainer to easily update an entity or a relationship.
+3. WHEN a version is requested, THE Nepal_Entity_Service SHALL return the exact entity state at that point in time
+4. THE Version_System SHALL provide an interface through the Publication Service that allows a data maintainer to easily update an entity or a relationship
+5. THE Version_System SHALL track author attribution for all changes with change descriptions
 
 ### Requirement 3
 
@@ -122,10 +128,32 @@ The entity service hosts a public API that allows anyone to get the entity, rela
 5. THE Nepal_Entity_Service SHALL handle database errors gracefully with appropriate HTTP status codes
 
 
-### Analytics System
+### Requirement 9
 
-**User Story:** As a researcher, I want to anlyze the Entity database for completeness, and accuracy.
+**User Story:** As a system architect, I want a modular service architecture with clear separation of concerns, so that the system is maintainable, testable, and scalable.
 
 #### Acceptance Criteria
-1. THE Nepal_Entity_Service SHALL generate HTML/Markdown reports, and structured JSON metadata on data completeness and other statistics on the fly using CLI.
-2. The Nepal_Entity_Service SHALL export the results on its documentation.
+
+1. THE Nepal_Entity_Service SHALL implement a Publication Service as the central orchestration layer for write operations
+2. THE Publication Service SHALL coordinate Entity, Relationship, Version, and Author modules for consistent operations
+3. THE Nepal_Entity_Service SHALL implement a Search Service as a separate read-optimized service
+4. THE Search Service SHALL share Entity and Relationship modules with the Publication Service
+5. THE Nepal_Entity_Service SHALL implement a Scraping Service as a standalone data extraction service
+6. THE Scraping Service SHALL not directly access the database but return normalized data for client processing
+7. THE Nepal_Entity_Service SHALL support CLI, notebook, and API client applications that orchestrate services
+8. THE Nepal_Entity_Service SHALL maintain clear module boundaries with well-defined interfaces
+
+### Requirement 10
+
+**User Story:** As an API consumer, I want fast read operations with sub-100ms response times, so that I can build responsive applications for end users.
+
+#### Acceptance Criteria
+
+1. THE Nepal_Entity_Service SHALL prioritize read-time latency reduction over write-time performance
+2. THE Nepal_Entity_Service SHALL implement aggressive caching strategies for frequently accessed entities
+3. THE Nepal_Entity_Service SHALL use read-optimized file organization and pre-computed indexes
+4. THE Nepal_Entity_Service SHALL perform expensive operations (validation, normalization, indexing) during write operations
+5. THE Nepal_Entity_Service SHALL target sub-100ms response times for entity retrieval operations
+6. THE Nepal_Entity_Service SHALL support efficient pagination with pre-sorted data structures
+7. THE Nepal_Entity_Service SHALL implement HTTP caching with ETags for unchanged data
+
