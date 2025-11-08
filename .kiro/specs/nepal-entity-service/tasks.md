@@ -256,8 +256,8 @@
     - Ensure all tests still pass after refactoring
     - _Requirements: Code quality_
 
-- [-] 4. Implement Search Service
-  - [ ] 4.1 Write Search Service tests FIRST
+- [x] 4. Implement Search Service
+  - [x] 4.1 Write Search Service tests FIRST
     - Write tests for entity text search
     - Write tests for multilingual search (Nepali and English)
     - Write tests for type and subtype filtering
@@ -268,7 +268,7 @@
     - Write tests for version retrieval
     - _Requirements: 9.3, 3.1, 3.2, TDD_
 
-  - [ ] 4.2 Implement Search Service foundation (Green)
+  - [x] 4.2 Implement Search Service foundation (Green)
     - Create `nes2/services/search/` directory with `__init__.py`
     - Create `nes2/services/search/service.py` with SearchService class
     - Initialize with database instance
@@ -276,7 +276,7 @@
     - Ensure foundation tests pass
     - _Requirements: 9.3, 3.1, 3.2_
 
-  - [ ] 4.3 Implement entity search capabilities (Green)
+  - [x] 4.3 Implement entity search capabilities (Green)
     - Add `search_entities()` method with text query support
     - Implement case-insensitive substring matching
     - Add support for Nepali (Devanagari) and English text search
@@ -286,7 +286,7 @@
     - Ensure all entity search tests pass
     - _Requirements: 1.2, 3.1, 3.2, 3.3, 3.4, 7.1_
 
-  - [ ] 4.4 Implement relationship and version search (Green)
+  - [x] 4.4 Implement relationship and version search (Green)
     - Add `search_relationships()` method
     - Implement filtering by relationship type
     - Add source/target entity filtering
@@ -296,7 +296,7 @@
     - Ensure all relationship/version search tests pass
     - _Requirements: 4.3, 2.3_
 
-  - [ ] 4.5 Refactor Search Service
+  - [x] 4.5 Refactor Search Service
     - Refactor for code quality and maintainability
     - Optimize search performance
     - Improve error handling
