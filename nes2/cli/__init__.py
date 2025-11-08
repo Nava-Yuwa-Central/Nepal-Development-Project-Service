@@ -309,3 +309,159 @@ def versions(entity_id, limit):
         if version.change_description:
             click.echo(f"    Description: {version.change_description}")
         click.echo()
+
+
+# Integrity command group
+@cli.group()
+def integrity():
+    """Relationship integrity checking commands.
+    
+    Check and fix relationship integrity issues in the database.
+    """
+    pass
+
+
+@integrity.command()
+@click.option('--fix', is_flag=True, help='Automatically fix issues where possible')
+@click.option('--json', 'output_json', is_flag=True, help='Output results in JSON format')
+def check(fix, output_json):
+    """Check relationship integrity.
+    
+    Checks for:
+    - Orphaned relationships (missing source or target entities)
+    - Circular relationships (in hierarchical types)
+    - Duplicate relationships
+    
+    Examples:
+        nes2 integrity check
+        nes2 integrity check --json
+        nes2 integrity check --fix
+    """
+    from nes2.config import Config
+    from nes2.services.publication.integrity import (
+        find_orphaned_relationships,
+        find_circular_relationships,
+        find_duplicate_relationships
+    )
+    import asyncio
+    import json
+    
+    # Initialize database
+    Config.initialize_database()
+    db = Config.get_database()
+    
+    async def run_checks():
+        results = {
+            "orphaned_relationships": [],
+            "circular_relationships": [],
+            "duplicate_relationships": []
+        }
+        
+        # Check for orphaned relationships
+        orphaned = await find_orphaned_relationships(db)
+        results["orphaned_relationships"] = [
+            {
+                "id": rel.id,
+                "source": rel.source_entity_id,
+                "target": rel.target_entity_id,
+                "type": rel.type
+            }
+            for rel in orphaned
+        ]
+        
+        # Check for circular relationships
+        circles = await find_circular_relationships(db)
+        results["circular_relationships"] = [
+            [
+                {
+                    "id": rel.id,
+                    "source": rel.source_entity_id,
+                    "target": rel.target_entity_id,
+                    "type": rel.type
+                }
+                for rel in circle
+            ]
+            for circle in circles
+        ]
+        
+        # Check for duplicate relationships
+        duplicates = await find_duplicate_relationships(db)
+        results["duplicate_relationships"] = [
+            [
+                {
+                    "id": rel.id,
+                    "source": rel.source_entity_id,
+                    "target": rel.target_entity_id,
+                    "type": rel.type
+                }
+                for rel in dup_group
+            ]
+            for dup_group in duplicates
+        ]
+        
+        return results
+    
+    results = asyncio.run(run_checks())
+    
+    if output_json:
+        # Output as JSON
+        click.echo(json.dumps(results, indent=2))
+    else:
+        # Output human-readable format
+        click.echo("\n=== Relationship Integrity Check ===\n")
+        
+        # Orphaned relationships
+        orphaned_count = len(results["orphaned_relationships"])
+        if orphaned_count > 0:
+            click.echo(f"⚠️  Found {orphaned_count} orphaned relationship(s):")
+            for rel in results["orphaned_relationships"]:
+                click.echo(f"  - {rel['id']}")
+                click.echo(f"    Source: {rel['source']}")
+                click.echo(f"    Target: {rel['target']}")
+                click.echo(f"    Type: {rel['type']}")
+            click.echo()
+        else:
+            click.echo("✓ No orphaned relationships found")
+        
+        # Circular relationships
+        circular_count = len(results["circular_relationships"])
+        if circular_count > 0:
+            click.echo(f"⚠️  Found {circular_count} circular relationship chain(s):")
+            for i, circle in enumerate(results["circular_relationships"], 1):
+                click.echo(f"  Circle {i}:")
+                for rel in circle:
+                    click.echo(f"    - {rel['source']} -> {rel['target']} ({rel['type']})")
+            click.echo()
+        else:
+            click.echo("✓ No circular relationships found")
+        
+        # Duplicate relationships
+        duplicate_count = len(results["duplicate_relationships"])
+        if duplicate_count > 0:
+            click.echo(f"⚠️  Found {duplicate_count} duplicate relationship group(s):")
+            for i, dup_group in enumerate(results["duplicate_relationships"], 1):
+                click.echo(f"  Group {i}:")
+                for rel in dup_group:
+                    click.echo(f"    - {rel['id']}")
+            click.echo()
+        else:
+            click.echo("✓ No duplicate relationships found")
+        
+        # Summary
+        total_issues = orphaned_count + circular_count + duplicate_count
+        if total_issues == 0:
+            click.echo("\n✓ All integrity checks passed!")
+        else:
+            click.echo(f"\n⚠️  Total issues found: {total_issues}")
+            if fix:
+                click.echo("\n--fix option not yet implemented")
+    
+    # Exit with error code if issues found
+    total_issues = (
+        len(results["orphaned_relationships"]) +
+        len(results["circular_relationships"]) +
+        len(results["duplicate_relationships"])
+    )
+    
+    if total_issues > 0:
+        raise click.Abort()
