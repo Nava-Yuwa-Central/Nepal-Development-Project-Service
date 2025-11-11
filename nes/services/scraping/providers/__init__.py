@@ -35,9 +35,6 @@ Usage:
 from .aws import AWSBedrockProvider
 from .base import BaseLLMProvider
 from .mock import MockLLMProvider
+from .openai import OpenAIProvider
 
-__all__ = [
-    "BaseLLMProvider",
-    "MockLLMProvider",
-    "AWSBedrockProvider",
-]
+__all__ = ["BaseLLMProvider", "MockLLMProvider", "AWSBedrockProvider", "OpenAIProvider"]
