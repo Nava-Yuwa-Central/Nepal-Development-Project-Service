@@ -54,6 +54,7 @@ class EntityType(str, Enum):
     PERSON = "person"
     ORGANIZATION = "organization"
     LOCATION = "location"
+    PROJECT = "project"
 
 
 class EntitySubType(str, Enum):
@@ -96,6 +97,18 @@ class EntitySubType(str, Enum):
     RURAL_MUNICIPALITY = "rural_municipality"  # गाउँपालिका (460 rural municipalities)
     WARD = "ward"  # वडा (smallest unit)
     CONSTITUENCY = "constituency"  # निर्वाचन क्षेत्र (electoral constituency)
+
+    # Project subtypes - Development and infrastructure projects
+    DEVELOPMENT_PROJECT = "development_project"  # विकास परियोजना
+    INFRASTRUCTURE_PROJECT = "infrastructure_project"  # बुनियादी ढांचा परियोजना
+    HEALTH_PROJECT = "health_project"  # स्वास्थ्य परियोजना
+    EDUCATION_PROJECT = "education_project"  # शिक्षा परियोजना
+    AGRICULTURE_PROJECT = "agriculture_project"  # कृषि परियोजना
+    ENERGY_PROJECT = "energy_project"  # ऊर्जा परियोजना
+    TRANSPORT_PROJECT = "transport_project"  # परिवहन परियोजना
+    WATER_SUPPLY_PROJECT = "water_supply_project"  # पानी आपूर्ति परियोजना
+    ENVIRONMENT_PROJECT = "environment_project"  # वातावरण परियोजना
+    TOURISM_PROJECT = "tourism_project"  # पर्यटन परियोजना
 
 
 Attributes = Dict[str, Any]
