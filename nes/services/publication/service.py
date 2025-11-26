@@ -648,5 +648,8 @@ class PublicationService:
                 return Organization.model_validate(entity_data)
         elif entity_type == "location" or entity_type == EntityType.LOCATION:
             return Location.model_validate(entity_data)
+        elif entity_type == "project" or entity_type == EntityType.PROJECT:
+            from nes.core.models.project import Project
+            return Project.model_validate(entity_data)
         else:
             raise ValueError(f"Unknown entity type: {entity_type}")
