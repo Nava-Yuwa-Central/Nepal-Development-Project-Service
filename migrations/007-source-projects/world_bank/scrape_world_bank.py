@@ -565,13 +565,14 @@ class WorldBankProjectScraper:
         Args:
             data: List of project data to save
         """
-        # Save to the location expected by the migration script, in the source/ subdirectory
+        # Save to the location expected by the migration script, in the main source/ directory
         # This is for the final processed data that the migration will use
-        output_dir = os.path.join(os.path.dirname(__file__), "source")
+        project_root = os.path.join(os.path.dirname(__file__), "..", "..", "..")
+        output_dir = os.path.join(project_root, "migrations", "007-source-projects", "source")
         os.makedirs(output_dir, exist_ok=True)
 
         migration_file_path = os.path.join(
-            output_dir,  # source subdirectory
+            output_dir,  # main source directory
             "world_bank_projects.json"
         )
 

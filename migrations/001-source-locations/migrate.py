@@ -10,6 +10,7 @@ from urllib.request import urlopen
 
 from nes.core.identifiers import build_entity_id
 from nes.core.models import ADMINISTRATIVE_LEVELS
+from nes.core.models.entity import EntitySubType, EntityType
 from nes.core.models.location import LocationType
 from nes.core.models.version import Author
 from nes.core.utils.devanagari import contains_devanagari
@@ -271,6 +272,8 @@ async def migrate(context: MigrationContext) -> None:
         )
 
         await context.publication.create_entity(
+            entity_type=EntityType.LOCATION,
+            entity_subtype=EntitySubType.PROVINCE,
             entity_data=province_data,
             author_id=author_id,
             change_description=CHANGE_DESCRIPTION,
@@ -313,6 +316,8 @@ async def migrate(context: MigrationContext) -> None:
             )
 
             await context.publication.create_entity(
+                entity_type=EntityType.LOCATION,
+                entity_subtype=EntitySubType.DISTRICT,
                 entity_data=district_data,
                 author_id=author_id,
                 change_description=CHANGE_DESCRIPTION,
@@ -362,6 +367,8 @@ async def migrate(context: MigrationContext) -> None:
                 )
 
                 await context.publication.create_entity(
+                    entity_type=EntityType.LOCATION,
+                    entity_subtype=EntitySubType.MUNICIPALITY,
                     entity_data=municipality_data,
                     author_id=author_id,
                     change_description=CHANGE_DESCRIPTION,
@@ -389,6 +396,8 @@ async def migrate(context: MigrationContext) -> None:
                     )
 
                     await context.publication.create_entity(
+                        entity_type=EntityType.LOCATION,
+                        entity_subtype=EntitySubType.WARD,
                         entity_data=ward_data,
                         author_id=author_id,
                         change_description=CHANGE_DESCRIPTION,
