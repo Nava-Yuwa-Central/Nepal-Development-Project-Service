@@ -61,6 +61,13 @@ async def search_relationships(
         "CHILD_OF",
         "SUPERVISES",
         "LOCATED_IN",
+        "FUNDED_BY",
+        "IMPLEMENTED_BY",
+        "EXECUTED_BY",
+        "MANAGED_BY",
+        "PARTNER_OF",
+        "CONTRACTOR_OF",
+        "CONSULTANT_TO",
     ]
     if relationship_type and relationship_type not in valid_types:
         raise HTTPException(

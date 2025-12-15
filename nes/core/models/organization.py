@@ -75,6 +75,39 @@ class GovernmentBody(Organization):
     )
 
 
+class InternationalOrganization(Organization):
+    """International organization."""
+
+    sub_type: Literal[EntitySubType.INTERNATIONAL_ORG] = Field(
+        default=EntitySubType.INTERNATIONAL_ORG,
+        description="Organization subtype, always international_org",
+    )
+    country_of_origin: Optional[str] = Field(
+        None, description="Country where the international organization is based"
+    )
+    international_type: Optional[str] = Field(
+        None, description="Type of international organization (bilateral, multilateral, etc.)"
+    )
+
+
+class NGO(Organization):
+    """Non-governmental organization."""
+
+    sub_type: Literal[EntitySubType.NGO] = Field(
+        default=EntitySubType.NGO,
+        description="Organization subtype, always ngo",
+    )
+    registration_number: Optional[str] = Field(
+        None, description="Registration number of the NGO"
+    )
+    registration_date: Optional[date] = Field(
+        None, description="Registration date of the NGO"
+    )
+    focus_areas: Optional[List[str]] = Field(
+        None, description="Focus areas of the NGO"
+    )
+
+
 class Hospital(Organization):
     """Hospital organization."""
 

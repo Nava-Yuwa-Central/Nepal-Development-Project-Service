@@ -15,6 +15,13 @@ RelationshipType = Literal[
     "CHILD_OF",
     "SUPERVISES",
     "LOCATED_IN",
+    "FUNDED_BY",
+    "IMPLEMENTED_BY",
+    "EXECUTED_BY",
+    "MANAGED_BY",
+    "PARTNER_OF",
+    "CONTRACTOR_OF",
+    "CONSULTANT_TO",
 ]
 
 

@@ -10,6 +10,7 @@ from urllib.request import urlopen
 
 from nes.core.identifiers import build_entity_id
 from nes.core.models import ADMINISTRATIVE_LEVELS
+from nes.core.models.entity import EntityType, EntitySubType
 from nes.core.models.location import LocationType
 from nes.core.models.version import Author
 from nes.core.utils.devanagari import contains_devanagari
@@ -271,6 +272,8 @@ async def migrate(context: MigrationContext) -> None:
         )
 
         await context.publication.create_entity(
+            entity_type=EntityType.LOCATION,
+            entity_subtype=EntitySubType.PROVINCE,
             entity_data=province_data,
             author_id=author_id,
             change_description=CHANGE_DESCRIPTION,
@@ -313,6 +316,8 @@ async def migrate(context: MigrationContext) -> None:
             )
 
             await context.publication.create_entity(
+                entity_type=EntityType.LOCATION,
+                entity_subtype=EntitySubType.DISTRICT,
                 entity_data=district_data,
                 author_id=author_id,
                 change_description=CHANGE_DESCRIPTION,
@@ -361,7 +366,19 @@ async def migrate(context: MigrationContext) -> None:
                     source_id=municipality_en["id"],
                 )
 
+                # Map the category subtype to the appropriate EntitySubType
+                if subtype == "metropolitan_city":
+                    municipality_subtype = EntitySubType.METROPOLITAN_CITY
+                elif subtype == "sub_metropolitan_city":
+                    municipality_subtype = EntitySubType.SUB_METROPOLITAN_CITY
+                elif subtype == "rural_municipality":
+                    municipality_subtype = EntitySubType.RURAL_MUNICIPALITY
+                else:  # default to municipality for "municipality" and any other values
+                    municipality_subtype = EntitySubType.MUNICIPALITY
+
                 await context.publication.create_entity(
+                    entity_type=EntityType.LOCATION,
+                    entity_subtype=municipality_subtype,
                     entity_data=municipality_data,
                     author_id=author_id,
                     change_description=CHANGE_DESCRIPTION,
@@ -389,6 +406,8 @@ async def migrate(context: MigrationContext) -> None:
                     )
 
                     await context.publication.create_entity(
+                        entity_type=EntityType.LOCATION,
+                        entity_subtype=EntitySubType.WARD,
                         entity_data=ward_data,
                         author_id=author_id,
                         change_description=CHANGE_DESCRIPTION,

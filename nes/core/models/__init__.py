@@ -25,6 +25,8 @@ from .location import ADMINISTRATIVE_LEVELS, Location, LocationType
 from .organization import (
     GovernmentBody,
     GovernmentType,
+    InternationalOrganization,
+    NGO,
     Organization,
     PartySymbol,
     PoliticalParty,
@@ -76,6 +78,8 @@ __all__ = [
     "PartySymbol",
     "GovernmentBody",
     "GovernmentType",
+    "InternationalOrganization",
+    "NGO",
     # Location models
     "Location",
     "LocationType",

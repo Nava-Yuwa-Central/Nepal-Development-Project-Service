@@ -22,6 +22,7 @@ from nes.core.models.organization import (
     Organization,
     PoliticalParty,
 )
+from nes.core.models.project import Project
 from nes.core.models.person import Person
 from nes.core.models.relationship import Relationship, RelationshipType
 from nes.core.models.version import Author, Version, VersionSummary, VersionType
@@ -259,6 +260,13 @@ class PublicationService:
         Raises:
             ValueError: If entities don't exist or relationship data is invalid
         """
+        # Normalize entity IDs to include required 'entity:' prefix
+        if not source_entity_id.startswith("entity:"):
+            source_entity_id = f"entity:{source_entity_id}"
+
+        if not target_entity_id.startswith("entity:"):
+            target_entity_id = f"entity:{target_entity_id}"
+
         # Validate entities exist
         source_entity = await self.database.get_entity(source_entity_id)
         if not source_entity:
@@ -281,6 +289,13 @@ class PublicationService:
             "CHILD_OF",
             "SUPERVISES",
             "LOCATED_IN",
+            "FUNDED_BY",
+            "IMPLEMENTED_BY",
+            "EXECUTED_BY",
+            "MANAGED_BY",
+            "PARTNER_OF",
+            "CONTRACTOR_OF",
+            "CONSULTANT_TO",
         ]
         if relationship_type not in valid_types:
             raise ValueError(
@@ -293,8 +308,8 @@ class PublicationService:
         # Create version summary
         # Note: We need to create the relationship first to get its ID
         relationship_data = {
-            "source_entity_id": source_entity_id,
-            "target_entity_id": target_entity_id,
+            "source_entity_id": source_entity.id,  # use actual entity ID string
+            "target_entity_id": target_entity.id,  # use actual entity ID string
             "type": relationship_type,
             "start_date": start_date,
             "end_date": end_date,
@@ -648,5 +663,7 @@ class PublicationService:
                 return Organization.model_validate(entity_data)
         elif entity_type == "location" or entity_type == EntityType.LOCATION:
             return Location.model_validate(entity_data)
+        elif entity_type == "project" or entity_type == EntityType.PROJECT:
+            return Project.model_validate(entity_data)
         else:
             raise ValueError(f"Unknown entity type: {entity_type}")
